@@ -26,6 +26,12 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.1.1</version> <!-- Use latest stable version -->
+        </dependency>
+
 
         <!-- Spring Boot Web + Servlet support -->
         <dependency>
