@@ -1,36 +1,27 @@
 package com.example.demo.entity;
 
-
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-
 
 @Entity
-@Table(name = "risk_assessment_logs")
 public class RiskAssessmentLog {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    private Long loanRequestId;
+    private double dtiRatio;
+    private String creditCheckStatus;
 
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-@Column(name = "risk_log_id")
-private Long id;
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
+    public Long getLoanRequestId() { return loanRequestId; }
+    public void setLoanRequestId(Long loanRequestId) { this.loanRequestId = loanRequestId; }
 
-@Column(nullable = false)
-private Long loanRequestId;
+    public double getDtiRatio() { return dtiRatio; }
+    public void setDtiRatio(double dtiRatio) { this.dtiRatio = dtiRatio; }
 
-
-@Column(nullable = false)
-private Double dtiRatio;
-
-
-@Column(nullable = false)
-private String creditCheckStatus;
-
-
-@Column(nullable = false)
-private LocalDateTime timestamp = LocalDateTime.now();
-
-
-// getters and setters
+    public String getCreditCheckStatus() { return creditCheckStatus; }
+    public void setCreditCheckStatus(String creditCheckStatus) { this.creditCheckStatus = creditCheckStatus; }
 }

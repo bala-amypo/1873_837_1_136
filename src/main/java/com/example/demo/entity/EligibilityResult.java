@@ -1,46 +1,33 @@
 package com.example.demo.entity;
 
-
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-
 
 @Entity
-@Table(name = "eligibility_results")
 public class EligibilityResult {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    @OneToOne
+    private LoanRequest loanRequest;
 
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-@Column(name = "eligibility_id")
-private Long id;
+    private boolean isEligible;
+    private String riskLevel;
+    private String rejectionReason;
 
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-@OneToOne
-@JoinColumn(name = "loan_request_id", nullable = false, unique = true)
-private LoanRequest loanRequest;
+    public LoanRequest getLoanRequest() { return loanRequest; }
+    public void setLoanRequest(LoanRequest loanRequest) { this.loanRequest = loanRequest; }
 
+    public boolean getIsEligible() { return isEligible; }
+    public void setIsEligible(boolean isEligible) { this.isEligible = isEligible; }
 
-@Column(nullable = false)
-private Boolean isEligible;
+    public String getRiskLevel() { return riskLevel; }
+    public void setRiskLevel(String riskLevel) { this.riskLevel = riskLevel; }
 
-
-private Double maxEligibleAmount;
-
-
-private Double estimatedEmi;
-
-
-@Column(nullable = false)
-private String riskLevel;
-
-
-private String rejectionReason;
-
-
-@Column(nullable = false)
-private LocalDateTime calculatedAt = LocalDateTime.now();
-
-
-// getters and setters
+    public String getRejectionReason() { return rejectionReason; }
+    public void setRejectionReason(String rejectionReason) { this.rejectionReason = rejectionReason; }
 }
