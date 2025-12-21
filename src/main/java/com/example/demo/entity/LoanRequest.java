@@ -1,44 +1,33 @@
 package com.example.demo.entity;
 
-
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-
 
 @Entity
-@Table(name = "loan_requests")
 public class LoanRequest {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    @ManyToOne
+    private User user;
 
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-@Column(name = "loan_request_id")
-private Long id;
+    private Double requestedAmount;
+    private Integer tenureMonths;
+    private String status;
 
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-@ManyToOne
-@JoinColumn(name = "user_id", nullable = false)
-private User user;
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
+    public Double getRequestedAmount() { return requestedAmount; }
+    public void setRequestedAmount(Double requestedAmount) { this.requestedAmount = requestedAmount; }
 
-@Column(nullable = false)
-private Double requestedAmount;
+    public Integer getTenureMonths() { return tenureMonths; }
+    public void setTenureMonths(Integer tenureMonths) { this.tenureMonths = tenureMonths; }
 
-
-@Column(nullable = false)
-private Integer tenureMonths;
-
-
-private String purpose;
-
-
-@Column(nullable = false)
-private String status = "PENDING";
-
-
-@Column(nullable = false)
-private LocalDateTime appliedAt = LocalDateTime.now();
-
-
-// getters and setters
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }
