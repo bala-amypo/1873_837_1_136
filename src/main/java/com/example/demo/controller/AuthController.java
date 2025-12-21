@@ -1,9 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.AuthRequest;
 import com.example.demo.dto.AuthResponse;
 import com.example.demo.entity.User;
-import com.example.demo.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,27 +9,24 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UserRepository userRepository;
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> registerUser(@RequestBody User user) {
+        // 1. Save the user (pseudo-code)
+        User savedUser = saveUserToDatabase(user);
 
-    public AuthController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+        // 2. Prepare AuthResponse using setters
+        AuthResponse response = new AuthResponse();
+        response.setUserId(savedUser.getId());
+        response.setEmail(savedUser.getEmail());
+        response.setFullName(savedUser.getFullName());
+        response.setRole(savedUser.getRole());
+
+        // 3. Return response
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-
-        if (userRepository.existsByEmail(user.getEmail())) {
-            return ResponseEntity.badRequest().body("Email already exists");
-        }
-
-        User savedUser = userRepository.save(user);
-
-        AuthResponse response = new AuthResponse();
-        response.userId = savedUser.getId();
-        response.email = savedUser.getEmail();
-        response.fullName = savedUser.getFullName();
-        response.role = savedUser.getRole();
-
-        return ResponseEntity.ok(response);
+    private User saveUserToDatabase(User user) {
+        // Your actual save logic goes here
+        return user; // temporary placeholder
     }
 }
