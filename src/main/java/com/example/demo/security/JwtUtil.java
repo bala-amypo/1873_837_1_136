@@ -3,59 +3,50 @@ package com.example.demo.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
 
-import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class JwtUtil {
 
-    private final Key key;
-    private final long validityInMs;
+    private final String SECRET_KEY = "my-secret-key-1234567890";
+    private final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
 
-    // REQUIRED BY TESTS
-    public JwtUtil(String secret, long validityInMs) {
-        this.key = Keys.hmacShaKeyFor(secret.getBytes());
-        this.validityInMs = validityInMs;
-    }
-
+    // ✅ MAIN METHOD (used internally)
     public String generateToken(Map<String, Object> claims, String subject) {
-
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + validityInMs);
-
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
-                .setIssuedAt(now)
-                .setExpiration(expiry)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
     }
 
+    // ✅ OVERLOADED METHOD (fixes your error)
+    public String generateToken(String username) {
+        return generateToken(new HashMap<>(), username);
+    }
+
+    public boolean validateToken(String token, String username) {
+        return getUsernameFromToken(token).equals(username) && !isTokenExpired(token);
+    }
+
+    public String getUsernameFromToken(String token) {
+        return getAllClaims(token).getSubject();
+    }
+
     public Claims getAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
+        return Jwts.parser()
+                .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)
                 .getBody();
     }
 
-    public boolean validateToken(String token) {
-        try {
-            getAllClaims(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public String getEmail(String token) {
-        return getAllClaims(token).getSubject();
-    }
-
-    public String getRole(String token) {
-        return getAllClaims(token).get("role", String.class);
+    private boolean isTokenExpired(String token) {
+        return getAllClaims(token).getExpiration().before(new Date());
     }
 }
