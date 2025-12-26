@@ -7,13 +7,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
 
     @Bean
     public JwtUtil jwtUtil() {
-        // ✅ Same secret used in tests
         return new JwtUtil(
                 "ChangeThisSecretForProductionButKeepItLongEnough",
                 3600000
@@ -29,25 +29,34 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            JwtFilter jwtFilter) throws Exception {
 
-        http.csrf(csrf -> csrf.disable())
+        http
+            // ✅ MUST be disabled for POST login
+            .csrf(csrf -> csrf.disable())
+
+            // ✅ Stateless API
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+
+            // ✅ AUTH RULES
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/auth/**",
+                    "/auth/**",          // 🔥 LOGIN & REGISTER
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/status"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
-            .sessionManagement(
-                s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            );
 
-        // ❗ Filter registered but NOT blocking requests
+            // ✅ Disable default login form
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable());
+
+        // ✅ JWT filter (non-blocking)
         http.addFilterBefore(
                 jwtFilter,
-                org.springframework.security.web.authentication.
-                        UsernamePasswordAuthenticationFilter.class
+                UsernamePasswordAuthenticationFilter.class
         );
 
         return http.build();
