@@ -1,74 +1,67 @@
-package com.example.demo.security;
+package com.example.demo.config;
 
+import com.example.demo.security.JwtFilter;
+import com.example.demo.security.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CustomUserDetailsService userDetailsService;
-
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-                          CustomUserDetailsService userDetailsService) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.userDetailsService = userDetailsService;
+    // ✅ JWT UTIL BEAN
+    @Bean
+    public JwtUtil jwtUtil() {
+        return new JwtUtil(
+                "ChangeThisSecretForProductionButKeepItLongEnough",
+                3600000
+        );
     }
 
+    // ✅ JWT FILTER BEAN (NOT JwtAuthenticationFilter)
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public JwtFilter jwtFilter(JwtUtil jwtUtil) {
+        return new JwtFilter(jwtUtil);
+    }
+
+    // ✅ SECURITY FILTER CHAIN
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           JwtFilter jwtFilter) throws Exception {
 
         http
+            // Disable CSRF for APIs
             .csrf(csrf -> csrf.disable())
+
+            // Stateless REST API
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+
+            // Authorization rules
             .authorizeHttpRequests(auth -> auth
-                // Swagger & OpenAPI
                 .requestMatchers(
-                        "/v3/api-docs/**",
-                        "/swagger-ui/**",
-                        "/swagger-ui.html"
+                    "/auth/**",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/status"
                 ).permitAll()
-
-                // Auth APIs
-                .requestMatchers("/api/auth/**").permitAll()
-
-                // Everything else secured
                 .anyRequest().authenticated()
             )
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+            // Disable default login mechanisms
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable());
+
+        // Register JWT filter
+        http.addFilterBefore(
+                jwtFilter,
+                UsernamePasswordAuthenticationFilter.class
+        );
 
         return http.build();
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
