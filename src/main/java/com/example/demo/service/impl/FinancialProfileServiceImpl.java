@@ -1,27 +1,39 @@
+package com.example.demo.service.impl;
+
+import com.example.demo.entity.FinancialProfile;
+import com.example.demo.exception.BadRequestException;
+import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.repository.FinancialProfileRepository;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.service.FinancialProfileService;
+import org.springframework.stereotype.Service;
+
 @Service
 public class FinancialProfileServiceImpl implements FinancialProfileService {
 
-    private final FinancialProfileRepository repo;
-    private final UserRepository userRepo;
+    private final FinancialProfileRepository profileRepository;
+    private final UserRepository userRepository;
 
-    public FinancialProfileServiceImpl(FinancialProfileRepository repo,
-                                       UserRepository userRepo) {
-        this.repo = repo;
-        this.userRepo = userRepo;
+    public FinancialProfileServiceImpl(FinancialProfileRepository profileRepository,
+                                       UserRepository userRepository) {
+        this.profileRepository = profileRepository;
+        this.userRepository = userRepository;
     }
 
-    public FinancialProfile createOrUpdate(FinancialProfile fp) {
+    @Override
+    public FinancialProfile createOrUpdate(FinancialProfile profile) {
 
-        if (fp.getCreditScore() < 300 || fp.getCreditScore() > 900) {
+        if (profile.getCreditScore() < 300 || profile.getCreditScore() > 900) {
             throw new BadRequestException("creditScore");
         }
 
-        return repo.save(fp);
+        return profileRepository.save(profile);
     }
 
+    @Override
     public FinancialProfile getByUserId(Long userId) {
-        return repo.findByUserId(userId)
-            .orElseThrow(() ->
-                new ResourceNotFoundException("Financial profile not found"));
+        return profileRepository.findByUserId(userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Financial profile not found"));
     }
 }
