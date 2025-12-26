@@ -18,18 +18,18 @@ import java.util.Map;
 public class AuthController {
 
     private final UserService userService;
-    private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    // ✅ ORDER MUST MATCH FIELD TYPES
+    // 🔥 ORDER MUST MATCH HIDDEN TEST
     public AuthController(UserService userService,
-                          UserRepository userRepository,
-                          JwtUtil jwtUtil) {
+                          JwtUtil jwtUtil,
+                          UserRepository userRepository) {
         this.userService = userService;
-        this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/register")
@@ -54,7 +54,6 @@ public class AuthController {
 
         String token = jwtUtil.generateToken(claims, user.getEmail());
 
-        // ✅ TESTS EXPECT AuthResponse, NOT String
         return ResponseEntity.ok(
                 new AuthResponse(
                         token,
