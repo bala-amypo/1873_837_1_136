@@ -6,7 +6,9 @@ import java.time.LocalDateTime;
 @Entity
 public class LoanRequest {
 
-    public enum Status { PENDING, APPROVED, REJECTED }
+    public enum Status {
+        PENDING, APPROVED, REJECTED
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,14 +18,27 @@ public class LoanRequest {
     private User user;
 
     private Double requestedAmount;
+
     private Integer tenureMonths;
+
     private String status;
+
     private LocalDateTime submittedAt;
+
+    // ✅ Tests expect defaults EVEN WITHOUT JPA
+    public LoanRequest() {
+        this.status = Status.PENDING.name();
+        this.submittedAt = LocalDateTime.now();
+    }
 
     @PrePersist
     public void prePersist() {
-        status = Status.PENDING.name();
-        submittedAt = LocalDateTime.now();
+        if (status == null) {
+            status = Status.PENDING.name();
+        }
+        if (submittedAt == null) {
+            submittedAt = LocalDateTime.now();
+        }
     }
 
     // getters & setters
@@ -40,5 +55,7 @@ public class LoanRequest {
     public void setTenureMonths(Integer tenureMonths) { this.tenureMonths = tenureMonths; }
 
     public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
     public LocalDateTime getSubmittedAt() { return submittedAt; }
 }

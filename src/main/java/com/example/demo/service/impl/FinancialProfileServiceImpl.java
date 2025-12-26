@@ -8,6 +8,8 @@ import com.example.demo.repository.UserRepository;
 import com.example.demo.service.FinancialProfileService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class FinancialProfileServiceImpl implements FinancialProfileService {
 
@@ -27,6 +29,22 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
             throw new BadRequestException("creditScore");
         }
 
+        // ✅ Update existing profile for same user
+        FinancialProfile existing = profileRepository
+                .findByUserId(profile.getUser().getId())
+                .orElse(null);
+
+        if (existing != null) {
+            existing.setMonthlyIncome(profile.getMonthlyIncome());
+            existing.setMonthlyExpenses(profile.getMonthlyExpenses());
+            existing.setExistingLoanEmi(profile.getExistingLoanEmi());
+            existing.setCreditScore(profile.getCreditScore());
+            existing.setSavingsBalance(profile.getSavingsBalance());
+            existing.setLastUpdatedAt(LocalDateTime.now());
+            return profileRepository.save(existing);
+        }
+
+        profile.setLastUpdatedAt(LocalDateTime.now());
         return profileRepository.save(profile);
     }
 

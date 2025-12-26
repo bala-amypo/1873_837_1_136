@@ -21,10 +21,16 @@ public class FinancialProfile {
 
     private LocalDateTime lastUpdatedAt;
 
+    public FinancialProfile() {
+        this.lastUpdatedAt = LocalDateTime.now();
+    }
+
     @PrePersist
     @PreUpdate
     public void updateTime() {
-        lastUpdatedAt = LocalDateTime.now();
+        if (lastUpdatedAt == null) {
+            lastUpdatedAt = LocalDateTime.now();
+        }
     }
 
     // getters & setters
@@ -50,4 +56,7 @@ public class FinancialProfile {
     public void setSavingsBalance(Double savingsBalance) { this.savingsBalance = savingsBalance; }
 
     public LocalDateTime getLastUpdatedAt() { return lastUpdatedAt; }
+    public void setLastUpdatedAt(LocalDateTime lastUpdatedAt) {
+        this.lastUpdatedAt = lastUpdatedAt;
+    }
 }

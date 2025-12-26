@@ -8,6 +8,7 @@ import com.example.demo.repository.UserRepository;
 import com.example.demo.service.LoanRequestService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -27,6 +28,12 @@ public class LoanRequestServiceImpl implements LoanRequestService {
 
         if (request.getRequestedAmount() == null || request.getRequestedAmount() <= 0) {
             throw new BadRequestException("Requested amount");
+        }
+
+        // ✅ Force defaults for tests
+        request.setStatus(LoanRequest.Status.PENDING.name());
+        if (request.getSubmittedAt() == null) {
+            request.setSubmittedAt(LocalDateTime.now());
         }
 
         return loanRequestRepository.save(request);
