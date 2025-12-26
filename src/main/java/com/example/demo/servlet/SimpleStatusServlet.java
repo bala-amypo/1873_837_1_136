@@ -7,8 +7,9 @@ import java.io.IOException;
 
 public class SimpleStatusServlet extends HttpServlet {
 
+    // ❗ MUST BE PUBLIC (tests call it directly)
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
         resp.setContentType("text/plain");
