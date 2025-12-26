@@ -1,6 +1,8 @@
 package com.example.demo.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 import java.security.Key;
@@ -12,7 +14,7 @@ public class JwtUtil {
     private final Key key;
     private final long validityInMs;
 
-    // ✅ TEST EXPECTS THIS CONSTRUCTOR
+    // REQUIRED BY TESTS
     public JwtUtil(String secret, long validityInMs) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
         this.validityInMs = validityInMs;
@@ -32,7 +34,6 @@ public class JwtUtil {
                 .compact();
     }
 
-    // ✅ Used in tests
     public Claims getAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
